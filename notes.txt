@@ -1,0 +1,337 @@
+Algorytmy Probabilistyczne
+Naiwny Klasyfikator Bayesowski i Sieci Bayesowskie
+Metody Sztucznej Inteligencji
+Prowadzący:Szymon Zapoorwski
+Katedra Systemów Multimedialnych / WETI
+Semestr 1, stopień II, rok akademicki 2025/2026
+MSI – Informatyka II° Algorytmy Probabilistyczne 1 / 20
+Plan wykładu
+1 Motywacja i podstawy probabilistyczne
+2 Naiwny Klasyfikator Bayesowski
+3 Sieci Bayesowskie
+4 Zastosowania i podsumowanie
+MSI – Informatyka II° Algorytmy Probabilistyczne 2 / 20
+Dlaczego probabilistyka w Sztucznej Inteligencji?
+Problemy rzeczywistego świata
+Dane sąniepełnei zaszumione
+Obserwacje nie determinują jednoznacznie
+wyniku
+Potrzebujemy miary pewnościdecyzji
+Kluczowa idea
+Klasyfikacja =inferencja probabilistyczna
+Zamiast pytać „Co to jest?",
+pytamy: „Z jakim prawdopodobieństwem to jest X?"
+Przykłady zastosowań
+– Filtr spamu
+– Diagnostyka medyczna
+– Analiza sentymentu
+– Wykrywanie oszustw
+– Rozpoznawanie mowy
+MSI – Informatyka II° Algorytmy Probabilistyczne 3 / 20
+Twierdzenie Bayesa — fundament
+Twierdzenie Bayesa
+P(C | x) = P(x | C ) P(C )
+P(x)
+P(C ) — wiedzaa priorio klasie
+P(x | C ) — zgodność danych z klasą
+P(C | x) — posterior po obserwacji
+P(x) — stała normalizująca
+Reguła MAP
+ˆC = arg max
+C
+P(C | x)
+W praktyce często porównujemy tylko
+liczniki,
+bo P(x) nie zależy od klasy.
+MSI – Informatyka II° Algorytmy Probabilistyczne 4 / 20
+Naiwny Klasyfikator Bayesowski – założenie kluczowe
+„Naiwne” założenie warunkowej niezależności cech
+P(x | C ) = P(x1 | C ) · P(x2 | C ) · · · P(xn | C ) =
+Yn
+i=1
+P(xi | C )
+Cechy x1, x2, . . . ,xn sąwarunkowo niezależneprzy danej klasieC
+Konsekwencje:
+Zamiast jednej dużej CPT⇒ n
+małych 1D rozkładów
+Liczba parametrów: O(n · k) zamiast
+O(k n)
+Bardzo efektywny obliczeniowo
+C
+x1 x2
+xn· · ·
+Graf NB jako sieć bayesowska
+MSI – Informatyka II° Algorytmy Probabilistyczne 5 / 20
+Warianty NB i wygładzanie Laplace’a
+Warianty modelu
+Wariant Dane
+Gaussian NB cechy ciągłe
+Multinomial NB zliczenia, tekst
+Bernoulli NB cechy binarne
+Zero-frequency problem
+Jeśli dla pewnej cechy mamyP(xi | C ) = 0,
+cały iloczyn prawdopodobieństw spada do
+zera.
+Wygładzanie Laplace’a
+P(xi | C ) = Nic + α
+Nc + αk
+gdzie:
+Nic — liczba wystąpień danej wartości w
+klasie C,
+Nc — liczba przykładów klasyC,
+k — liczba możliwych wartości cechy.
+Praktyka: liczymy sumę logarytmów,P
+i log P(xi | C ), a nie iloczyn.
+MSI – Informatyka II° Algorytmy Probabilistyczne 6 / 20
+Przykład: Klasyfikacja e-maila jako spam (1/2)
+Zbiór treningowy
+E-mail „oferta” „gratulacje” „spotkanie” Klasa
+1 1 1 0 spam
+2 1 0 0 spam
+3 0 1 0 spam
+4 0 0 1 ham
+5 0 0 1 ham
+6 1 0 1 ham
+Cechy binarne:1 = słowo występuje w e-mailu, 0 = nie występuje
+Klasy: spam (niechciana wiadomość) vs.ham (poprawna wiadomość)
+MSI – Informatyka II° Algorytmy Probabilistyczne 7 / 20
+Przykład: Klasyfikacja e-maila jako spam (2/2)
+Nowy e-mail do sklasyfikowania
+„oferta”= 1, „gratulacje”= 0, „spotkanie”= 1
+Prior (z danych treningowych)
+P(spam) = 3
+6 = 0,5
+P(ham) = 3
+6 = 0,5
+Zadanie
+Korzystając z założenia
+warunkowej niezależności
+oblicz:
+ˆC = arg max
+C
+P(C | x)
+Rozwiązanie na następnym slajdzie.
+MSI – Informatyka II° Algorytmy Probabilistyczne 8 / 20
+Przykład: Rozwiązanie (z wygładzaniemα = 1)
+Likelihood dla spam (Nc = 3,
+k = 2)
+P(of. = 1|spam) = 2+1
+3+2 = 3
+5
+P(gr. = 0|spam) = 1+1
+3+2 = 2
+5
+P(sp. = 1|spam) = 0+1
+3+2 = 1
+5
+⇒ P(spam|x) ∝ 0,5 · 3
+5 · 2
+5 · 1
+5 = 0,024
+Likelihood dla ham (Nc = 3, k = 2)
+P(of. = 1|ham) = 1+1
+3+2 = 2
+5
+P(gr. = 0|ham) = 3+1
+3+2 = 4
+5
+P(sp. = 1|ham) = 3+1
+3+2 = 4
+5
+⇒ P(ham|x) ∝ 0,5 · 2
+5 · 4
+5 · 4
+5 = 0,128
+Decyzja MAP
+0,128 > 0,024 ⇒ Klasyfikuj jako HAM (nie-spam)
+MSI – Informatyka II° Algorytmy Probabilistyczne 9 / 20
+Sieć Bayesowska – definicja
+Definicja
+Sieć Bayesowska to para(G, θ ):
+G = (V , E ) –DAG (Directed Acyclic Graph)
+V = zmienne losowe, E = zależności przyczynowe
+θ – tabliceCPT (Conditional Probability Tables):
+dla każdego węzłaXi: P(Xi | Pa(Xi ))
+Rozkład łączny
+P(X1, . . . ,Xn) =
+Yn
+i=1
+P(Xi | Pa(Xi ))
+Własność Markowa:każdy węzeł jest warunkowo niezależny od swoich nie-potomków
+przy znanych rodzicach.
+MSI – Informatyka II° Algorytmy Probabilistyczne 10 / 20
+Sieć Bayesowska – typy połączeń
+Trzy typy połączeń w DAG
+Serial: A → B → C
+Informacja płynie przezB;
+jeśliB znane –A ⊥ C
+Rozwidlenie: A ← B → C
+B jest wspólną przyczyną;
+jeśliB znane –A ⊥ C
+Zbieżność:A → B ← C
+A i C niezależne a priori,
+ale zależne gdyB obserwowane
+(explaining away)
+d-separation
+Kryterium d-separacji określa, kiedy dwa
+węzły są warunkowo niezależne przy
+danym zbiorze obserwowanych zmiennych.
+Przykład: Explaining away
+Alarm → John dzwoni← Mary dzwoni
+John i Mary dzwonią niezależnie,
+ale wiedząc, że John dzwonił,
+zmienia się prawdopodobieństwo
+że Mary też zadzwoni.
+MSI – Informatyka II° Algorytmy Probabilistyczne 11 / 20
+Przykład klasyczny: Sieć alarmowa
+Włamanie
+(Burglary)
+T rzęsienie
+(Earthquake)
+Alarm
+John
+dzwoni
+Mary
+dzwoni
+CPT dla węzła Alarm
+B E P(Alarm = T )
+T T 0.95
+T F 0.94
+F T 0.29
+F F 0.001
+Prior: P(B = T ) = 0.001, P(E = T ) = 0.002
+Pytanie: Jeśli alarm dzwoni — czy to włamanie?
+⇒ Wymaga wnioskowania wstecznego
+MSI – Informatyka II° Algorytmy Probabilistyczne 12 / 20
+Wnioskowanie w sieciach bayesowskich (1/2)
+Rodzaje wnioskowania
+Diagnostyczne (bottom-up): objawy → przyczyny
+Przyczynowe (top-down): przyczyny → efekty
+Mieszane (abdukcja): marginalizacja po ukrytych zmiennych
+Wnioskowanie dokładne
+Enumeracja: P(Q | e) = α
+X
+h
+P(Q,h,e)
+Eliminacja zmiennych: optymalizacja
+kolejności sumowania, redukuje złożoność
+Złożoność:wykładnicza w ogólnym przy-
+padku (NP-trudne)
+MSI – Informatyka II° Algorytmy Probabilistyczne 13 / 20
+Wnioskowanie aproksymacyjne (2/2)
+Metody próbkowania Monte Carlo
+Direct Sampling
+losowe próbki z rozkładu a priori
+Rejection Sampling
+odrzucamy próbki niezgodne z e
+Likelihood Weighting
+ustalamy e, ważymy próbki
+Gibbs Sampling(MCMC)
+próbkowanie warunkowe
+kolejnych zmiennych
+Kiedy stosować aproksymację?
+Sieć ma wiele węzłów (>20) – wnioskowanie dokładne zbyt wolne
+Wiele zmiennych ukrytych – przestrzeń sum wykładnicza
+W praktyce:Gibbs Samplingnajczęściej używany
+MSI – Informatyka II° Algorytmy Probabilistyczne 14 / 20
+Relacja: NB ⊂ Sieci Bayesowskie
+Naiwny Bayes
+C
+x1
+x2
+x3
+brak krawędzi między cechami
+Wszystkie cechy niezależne
+(CPT = 1D rozkłady)
+TAN (Tree-Augmented NB)
+C
+x1
+x2
+x3
+Dodatkowe krawędzie (drzewo)
+(lepsza aproksymacja zależności)
+Hierarchia modeli
+Naiwny Bayes ⊂ TAN ⊂ Ogólna Sieć Bayesowska
+MSI – Informatyka II° Algorytmy Probabilistyczne 15 / 20
+Zastosowania w praktyce
+Naiwny Bayes
+Filtrowanie spamu
+Klasyfikacja tekstu i NLP
+Analiza sentymentu
+Wstępna diagnostyka
+Kategoryzacja dokumentów
+Sieci Bayesowskie
+Wspomaganie decyzji klinicznych
+Modele przyczynowości (XAI)
+Ocena ryzyka
+Robotyka i lokalizacja
+Diagnoza awarii
+Generatywne vs. dyskryminatywne
+NB Reg. logistyczna
+Modeluje P(C ,x) P(C | x)
+Dane małe zbiory większe zbiory
+Interpretowalność wysoka średnia
+MSI – Informatyka II° Algorytmy Probabilistyczne 16 / 20
+Ograniczenia i nowoczesne rozszerzenia
+Ograniczenia
+Naiwny Bayes:
+Założenie niezależności (rzadko spełnione)
+Złe oszacowania, gdy cechy skorelowane
+Sieci Bayesowskie:
+Uczenie struktury – NP-trudne
+CPT rośnie wykładniczo z liczbą rodziców
+Wnioskowanie dokładne – wykładnicze
+Rozszerzenia
+TAN– Tree-Augmented Naive Bayes
+DBN – Dynamic Bayesian Networks
+(HMM)
+NB + EM – niekompletne dane
+Bayesowskie sieci głębokie – połączenie
+z DL
+Causal Discovery (PC algorithm, FCI)
+Narzędzia: GeNIe/SMILE, pgmpy
+(Python), bnlearn (R)
+MSI – Informatyka II° Algorytmy Probabilistyczne 17 / 20
+Podsumowanie
+Kluczowe pojęcia
+Pojęcie Istota
+Tw. Bayesa Aktualizacja wiary po obserwacji danych
+MAP Decyzja maksymalizująca posterior
+Naiwny Bayes NB = warunkowa niezależność cech
+CPT Lokalna specyfikacja zależności w DAG
+Wnioskowanie Exact (eliminacja) vs. approx (MCMC)
+Myśl przewodnia
+„Sieci Bayesowskie to uogólnienie Naiwnego Bayesa — tam gdzie NB tniewszystkie krawędzie
+między cechami, sieć pozwalaprecyzyjnie kontrolować strukturę zależności."
+Lab: sklearn.naive_bayes | GeNIe/SMILE ( bayesfusion.com)
+MSI – Informatyka II° Algorytmy Probabilistyczne 18 / 20
+Literatura i źródła
+Podręczniki
+S. Russell, P. Norvig,
+Artificial Intelligence: A Modern
+Approach,
+4th ed., Pearson 2020. Rozdz. 12–13
+T. Mitchell,Machine Learning,
+McGraw-Hill 1997. Rozdz. 6
+C. Bishop,
+Pattern Recognition and Machine
+Learning,
+Springer 2006. Rozdz. 8
+Materiały polskojęzyczne
+W. Duch,Analiza Bayesa – SI,
+UMK Toruń (slajdy online)
+Notatki: Naiwny Klasyfikator
+Bayesowski,
+PJATK Warszawa
+users.pja.edu.pl/~msyd/
+Sieci Bayesowskie – Wykład XI,
+MIMUW Warszawa
+Klasyfikacja Bayesowska,
+WikiZMSI, ZUT Szczecin
+MSI – Informatyka II° Algorytmy Probabilistyczne 19 / 20
+?
+Pytania i dyskusja
+Metody Sztucznej Inteligencji
+Algorytmy Probabilistyczne
+Naiwny Klasyfikator Bayesowski i Sieci Bayesowskie
+MSI – Informatyka II° Algorytmy Probabilistyczne 20 / 20
